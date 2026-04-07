@@ -797,14 +797,15 @@ class FMProcessor extends AudioWorkletProcessor {
     this._relEnv1=0;this._relEnv2=0;
     this.port.onmessage=(e)=>{
       var d=e.data;
-      if(d.type==='params')Object.assign(this,d);
+      if(d.type==='params'){
+        if(d.freq2!==undefined)this._freq2Target=d.freq2;
+        Object.assign(this,d);
+      }
       if(d.type==='gate'){
         if(d.open&&!this._gate){
-          /* gate open: reset envelopes to attack */
           this._gate=true;this._rel1=false;this._rel2=false;
           this._env1=0;this._env2=0;
         } else if(!d.open&&this._gate){
-          /* gate close: enter release */
           this._gate=false;this._rel1=true;this._rel2=true;
           this._relEnv1=this._env1;this._relEnv2=this._env2;
         }
@@ -812,7 +813,7 @@ class FMProcessor extends AudioWorkletProcessor {
       }
     };
     /* defaults */
-    this.freq1=220;this.freq2=440;
+    this.freq1=220;this.freq2=440;this._freq2Target=440;
     this.level1=0.8;this.level2=0.64;
     this.fb1=0;this.fb2=0.12;
     this.br1=16;this.br2=16;
@@ -829,7 +830,6 @@ class FMProcessor extends AudioWorkletProcessor {
   }
 
   _advEnv(env,gate,rel,relEnv,at,dc,su,rl,sr){
-    /* returns [newEnv, newRel, newRelEnv] */
     var dt=1/sr;
     if(gate){
       if(env<1){env=Math.min(1,env+dt/at);}
@@ -845,18 +845,22 @@ class FMProcessor extends AudioWorkletProcessor {
   }
 
   process(inputs,outputs,parameters){
-    var mic=inputs[0]&&inputs[0][0];
     var out=outputs[0][0];
     var sr=sampleRate;
     var TAU=2*Math.PI;
-    var f1=this.freq1,f2=this.freq2;
+    var n=out.length;
+    var f1=this.freq1;
     var lv1=this.level1,lv2=this.level2;
     var fb1=this.fb1/64,fb2=this.fb2/64;
     var br1=this.br1,br2=this.br2;
     var str=this._strength;
 
-    for(var i=0;i<out.length;i++){
-      /* advance envelopes */
+    /* interpolate freq2 toward target across this block — eliminates discrete jumps */
+    var f2Start=this.freq2;
+    var f2End=this._freq2Target;
+    var f2Step=(f2End-f2Start)/n;
+
+    for(var i=0;i<n;i++){
       var e1=this._advEnv(this._env1,this._gate,this._rel1,this._relEnv1,this.at1,this.dc1,this.su1,this.rl1,sr);
       this._env1=e1[0];this._rel1=e1[1];this._relEnv1=e1[2];
       var e2=this._advEnv(this._env2,this._gate,this._rel2,this._relEnv2,this.at2,this.dc2,this.su2,this.rl2,sr);
@@ -865,23 +869,25 @@ class FMProcessor extends AudioWorkletProcessor {
       var env1=this._env1*str;
       var env2=this._env2*str;
 
-      /* OP2: sine + mic perturbation */
+      /* OP2 freq interpolated per sample */
+      var f2Now=f2Start+f2Step*i;
+
       var op2Raw=Math.sin(this._phase2+this._fb2*fb2*TAU);
       op2Raw=this._qtz(op2Raw,br2);
       this._fb2=op2Raw;
       var mod=op2Raw*lv2*env2;
 
-      /* OP1: carrier modulated by OP2 */
       var op1Raw=Math.sin(this._phase1+mod*TAU+this._fb1*fb1*TAU);
       op1Raw=this._qtz(op1Raw,br1);
       this._fb1=op1Raw;
 
-      out[i]=op1Raw*lv1*env1*0.5;
+      out[i]=op1Raw*lv1*env1;
 
-      /* advance phases */
       this._phase1=(this._phase1+f1/sr)%1;
-      this._phase2=(this._phase2+f2/sr)%1;
+      this._phase2=(this._phase2+f2Now/sr)%1;
     }
+    /* commit interpolated freq2 */
+    this.freq2=f2End;
     return true;
   }
 }
@@ -934,40 +940,41 @@ function _buildWorklet(){
     var _sp_p1=0,_sp_p2=0,_sp_fb1=0,_sp_fb2=0;
     var _sp_env1=0,_sp_env2=0,_sp_rel1=false,_sp_rel2=false;
     var _sp_relE1=0,_sp_relE2=0,_sp_gate=false,_sp_str=1;
+    var _sp_f2=440,_sp_f2Target=440;
     sp.onaudioprocess=function(ev){
       var out=ev.outputBuffer.getChannelData(0);
       var sr=AC.sampleRate,TAU=2*Math.PI,dt=1/sr;
       var o1=ops[0],o2=ops[1];
-      var f1=pitchFreq(),f2=f1*(o2.r/10);
+      var f1=pitchFreq();
       var lv1=o1.l/127,lv2=o2.l/127;
       var fb1v=o1.f/64,fb2v=o2.f/64;
       var at1=0.002*Math.pow(125,o1.atk/100),dc1=0.01*Math.pow(150,o1.dec/100);
       var su1=Math.pow(o1.sus/100,1.4),rl1=0.01*Math.pow(200,o1.rel/100);
       var at2=0.002*Math.pow(125,o2.atk/100),dc2=0.01*Math.pow(150,o2.dec/100);
       var su2=Math.pow(o2.sus/100,1.4),rl2=0.01*Math.pow(200,o2.rel/100);
-      for(var i=0;i<out.length;i++){
-        /* env1 */
+      var n=out.length;
+      var f2Step=(_sp_f2Target-_sp_f2)/n;
+      for(var i=0;i<n;i++){
         if(_sp_gate){_sp_env1=_sp_env1<1?Math.min(1,_sp_env1+dt/at1):Math.max(su1,_sp_env1-dt/dc1);}
         else if(_sp_rel1){_sp_relE1=Math.max(0,_sp_relE1-dt/rl1);_sp_env1=_sp_relE1;if(_sp_relE1<=0)_sp_rel1=false;}
         else{_sp_env1=0;}
-        /* env2 */
         if(_sp_gate){_sp_env2=_sp_env2<1?Math.min(1,_sp_env2+dt/at2):Math.max(su2,_sp_env2-dt/dc2);}
         else if(_sp_rel2){_sp_relE2=Math.max(0,_sp_relE2-dt/rl2);_sp_env2=_sp_relE2;if(_sp_relE2<=0)_sp_rel2=false;}
         else{_sp_env2=0;}
-        /* OP2: sine + mic */
+        var f2Now=_sp_f2+f2Step*i;
         var op2=Math.sin(_sp_p2*TAU+_sp_fb2*fb2v*TAU);
         _sp_fb2=op2;
         var mod=op2*lv2*_sp_env2*_sp_str;
-        /* OP1 */
         var op1=Math.sin(_sp_p1*TAU+mod*TAU+_sp_fb1*fb1v*TAU);
         _sp_fb1=op1;
-        out[i]=op1*lv1*_sp_env1*_sp_str*0.5;
+        out[i]=op1*lv1*_sp_env1*_sp_str;
         _sp_p1=(_sp_p1+f1/sr)%1;
-        _sp_p2=(_sp_p2+f2/sr)%1;
+        _sp_p2=(_sp_p2+f2Now/sr)%1;
       }
+      _sp_f2=_sp_f2Target;
     };
-    /* wrap sp with port-like interface */
     sp.port={postMessage:function(d){
+      if(d.type==='params'&&d.freq2!==undefined)_sp_f2Target=d.freq2;
       if(d.type==='gate'){
         if(d.open&&!_sp_gate){_sp_gate=true;_sp_rel1=false;_sp_rel2=false;_sp_env1=0;_sp_env2=0;_sp_str=d.strength||1;}
         else if(!d.open&&_sp_gate){_sp_gate=false;_sp_rel1=true;_sp_rel2=true;_sp_relE1=_sp_env1;_sp_relE2=_sp_env2;}
@@ -1021,7 +1028,7 @@ var micAnalyseData=null;
 var micWaveData=null;
 var micWaveAboveThreshold=false;
 var pitchBuffer=null;   /* float32 time-domain for autocorrelation */
-var smoothedRatio=2.0;   /* smoothed OP2 ratio as float (ops[1].r default = 20 → 2.0) */
+var smoothedRatio=2.0;   /* smoothed OP2 ratio as float */
 
 function startMic(){
   if(micActive)return;
@@ -1029,23 +1036,14 @@ function startMic(){
   .then(function(stream){
     micStream=stream;
     micSource=AC.createMediaStreamSource(stream);
-
-    /* highpass filter at 150Hz to cut plosive/breath noise before pitch detection */
-    var hpf=AC.createBiquadFilter();
-    hpf.type='highpass';
-    hpf.frequency.value=150;
-    hpf.Q.value=0.7;
-    micSource.connect(hpf);
-
+    /* mic boost ×4 for low-sensitivity devices (iPhone etc) */
+    var micBoost=AC.createGain();
+    micBoost.gain.value=4;
+    micSource.connect(micBoost);
     analyser=AC.createAnalyser();
     analyser.fftSize=2048;
     analyser.smoothingTimeConstant=0;
-    hpf.connect(analyser);
-    /* silent sink: analyser is passthrough, mute it explicitly */
-    var silentGain=AC.createGain();
-    silentGain.gain.value=0;
-    analyser.connect(silentGain);
-    silentGain.connect(AC.destination);
+    micBoost.connect(analyser);
     micAnalyseData=new Uint8Array(analyser.frequencyBinCount);
     micWaveData=new Uint8Array(analyser.fftSize);
     pitchBuffer=new Float32Array(analyser.fftSize);
@@ -1103,8 +1101,8 @@ function detectPitch(buf, sampleRate){
 
 var prevRms=0;
 function startMicPoll(){
-  var POLL_MS=16;
-  var SMOOTH=0.04; /* slow smoothing: ratio glides gradually, prevents FM frequency jitter */
+  var POLL_MS=16; /* ~60fps equivalent */
+  var SMOOTH=0.15; /* ratio smoothing factor: 0=frozen, 1=instant */
 
   function poll(){
     if(!micActive||!analyser)return;
@@ -1126,15 +1124,15 @@ function startMicPoll(){
       if(pitchBuffer&&analyser.getFloatTimeDomainData){
         analyser.getFloatTimeDomainData(pitchBuffer);
         var detectedFreq=detectPitch(pitchBuffer, AC?AC.sampleRate:44100);
-        if(detectedFreq>150&&detectedFreq<4000){
+        if(detectedFreq>40&&detectedFreq<4000){
           var carrierFreq=pitchFreq();
           var targetRatio=Math.max(0.25,Math.min(8.0,detectedFreq/carrierFreq));
-          /* smooth in float space — no rounding here, prevents discrete jumps */
+          /* smooth in float space — no integer quantization */
           smoothedRatio=smoothedRatio+(targetRatio-smoothedRatio)*SMOOTH;
-          /* display: round to 1 decimal for ops[1].r (×10) */
+          /* display only: round to 1 decimal */
           ops[1].r=Math.round(smoothedRatio*10);
           updSq();
-          /* send exact float ratio to worklet — no quantization */
+          /* send exact float freq2 — worklet interpolates internally */
           if(fmWorklet)fmWorklet.port.postMessage({type:'params',freq2:pitchFreq()*smoothedRatio});
         }
       }
