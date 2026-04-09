@@ -7,256 +7,262 @@
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/barlow-condensed@5.0.17/index.min.css" rel="stylesheet">
 <link href="https://unpkg.com/@fontsource/orbitron@5.1.1/400.css" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
 html,body{height:100%;overflow:hidden;background:#0a0a0a;}
 body{display:flex;flex-direction:column;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;}
 
-/* ── TAP TO START ── */
-#overlay{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:16px;}
-#overlay h1{color:#fff;font-size:36px;letter-spacing:12px;font-weight:400;}
-#overlay p{color:#444;font-size:11px;letter-spacing:4px;}
+/* ── OVERLAY ── */
+#overlay{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:14px;cursor:pointer;}
+#overlay h1{color:#fff;font-size:34px;letter-spacing:10px;font-weight:400;}
+#overlay p{color:#444;font-size:10px;letter-spacing:4px;}
+
+/* ── PAGES ── */
+#pg-main{display:flex;flex-direction:column;flex:1;min-height:0;}
+#pg-env{display:none;flex-direction:column;flex:1;min-height:0;background:#0a0a0a;}
 
 /* ── HEADER ── */
-#hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 6px;border-bottom:1px solid #1a1a1a;flex-shrink:0;}
-.hdr-l{display:flex;align-items:center;gap:8px;}
-#logo{font-size:18px;letter-spacing:6px;color:#fff;font-weight:400;}
+#hdr{display:flex;align-items:center;justify-content:space-between;padding:7px 12px 5px;border-bottom:1px solid #1a1a1a;flex-shrink:0;}
+.hdr-l{display:flex;align-items:center;gap:7px;}
+#logo{font-size:16px;letter-spacing:5px;color:#fff;font-weight:400;}
 #mic-dot{width:5px;height:5px;border-radius:50%;background:#333;flex-shrink:0;transition:background .05s;}
 #mic-dot.live{background:#f44;}
-#hdr-status{font-size:9px;color:#555;letter-spacing:2px;}
-#hdr-patch{font-size:9px;color:#888;letter-spacing:2px;text-align:right;}
+#hdr-status{font-size:8px;color:#555;letter-spacing:2px;}
+#hdr-note{font-size:10px;color:#aaa;letter-spacing:2px;font-family:'Orbitron',monospace;}
 
-/* ── BREATH METER ── */
-#breath-bar-wrap{padding:5px 14px 3px;flex-shrink:0;}
-#breath-track{height:3px;background:#111;border:1px solid #1e1e1e;position:relative;border-radius:1px;}
-#breath-fill{position:absolute;top:0;left:0;height:100%;background:#fff;width:0%;transition:width .04s;border-radius:1px;}
-#breath-thr{position:absolute;top:-2px;bottom:-2px;width:2px;background:#f44;opacity:0.7;border-radius:1px;}
+/* ── BREATH BAR ── */
+#breath-wrap{padding:4px 12px 2px;flex-shrink:0;}
+#breath-track{height:4px;background:#111;border:1px solid #1e1e1e;border-radius:2px;position:relative;}
+#breath-fill{position:absolute;top:0;left:0;height:100%;background:#fff;width:0%;border-radius:2px;transition:width .03s;}
+#breath-thr{position:absolute;top:-3px;bottom:-3px;width:2px;background:#f44;opacity:.6;border-radius:1px;left:30%;}
 
 /* ── WAVEFORM ── */
-#wave-wrap{padding:0 14px;flex-shrink:0;}
+#wave-wrap{padding:0 12px 4px;flex-shrink:0;}
 #wave-cv{display:block;width:100%;}
 
-/* ── MAIN LAYOUT: note keys left + params right ── */
-#main{display:flex;flex:1;min-height:0;padding:8px 10px 8px;}
+/* ── MAIN BODY ── */
+#body{display:flex;flex:1;min-height:0;padding:6px 10px 8px;gap:8px;}
 
 /* ── NOTE KEYS ── */
-#keys{display:flex;flex-direction:column;gap:5px;width:62%;padding-right:8px;}
+#keys{display:flex;flex-direction:column;gap:5px;flex:1;}
 .key-row{display:flex;gap:5px;flex:1;}
-.nkey{flex:1;border:1px solid #2a2a2a;border-radius:6px;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;position:relative;overflow:hidden;}
-.nkey.active{background:#222;border-color:#888;}
-.nkey.held{background:#1e1e1e;border-color:#555;}
-.nkey-name{font-size:15px;color:#888;letter-spacing:1px;line-height:1;}
-.nkey.active .nkey-name{color:#fff;}
-.nkey-oct{font-size:8px;color:#444;letter-spacing:1px;}
-.nkey.active .nkey-oct{color:#aaa;}
-/* sharp keys slightly different */
-.nkey.sharp{background:#0d0d0d;}
-.nkey.sharp .nkey-name{color:#666;}
-.nkey.sharp.active .nkey-name{color:#fff;}
+.nkey{flex:1;border:1px solid #222;border-radius:8px;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;position:relative;overflow:hidden;cursor:pointer;touch-action:none;}
+.nkey.act{background:#202020;border-color:#777;}
+.nkey-name{font-size:20px;color:#777;letter-spacing:0;line-height:1.1;}
+.nkey.act .nkey-name{color:#fff;}
+.nkey-sub{font-size:9px;color:#333;letter-spacing:1px;}
+.nkey.act .nkey-sub{color:#888;}
+.nkey.sharp{background:#0d0d0d;border-color:#1a1a1a;}
+.nkey.sharp .nkey-name{color:#555;}
+.nkey.sharp.act .nkey-name{color:#fff;}
 
-/* ── PARAM PANEL ── */
-#params{display:flex;flex-direction:column;gap:5px;width:38%;}
+/* ── RIGHT SIDEBAR ── */
+#sidebar{display:flex;flex-direction:column;gap:5px;width:90px;flex-shrink:0;}
 
-/* param group */
-.pg{background:#0d0d0d;border:1px solid #1e1e1e;border-radius:6px;padding:7px 8px;display:flex;flex-direction:column;gap:5px;}
-.pg-title{font-size:7px;color:#444;letter-spacing:2px;text-align:center;}
+/* big tap button */
+.big-btn{border:1px solid #2a2a2a;border-radius:8px;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;touch-action:none;}
+.big-btn:active,.big-btn.act{background:#1e1e1e;border-color:#666;}
+.big-btn-label{font-size:7px;color:#444;letter-spacing:2px;}
+.big-btn.act .big-btn-label{color:#aaa;}
+.big-btn-val{font-size:11px;color:#666;font-family:'Orbitron',monospace;letter-spacing:0;}
+.big-btn.act .big-btn-val{color:#fff;}
 
-/* vertical slider */
-.vsl-row{display:flex;gap:6px;justify-content:center;}
-.vsl{display:flex;flex-direction:column;align-items:center;gap:3px;}
-.vsl-lbl{font-size:7px;color:#555;letter-spacing:1px;}
-.vsl-track{width:22px;flex:1;background:#111;border:1px solid #1e1e1e;border-radius:2px;position:relative;cursor:pointer;}
-.vsl-fill{position:absolute;bottom:0;left:0;right:0;background:#444;border-radius:2px;transition:height .08s;}
-.vsl.sel .vsl-fill{background:#fff;}
-.vsl-val{font-family:'Orbitron',monospace;font-size:8px;color:#666;letter-spacing:0;}
-.vsl.sel .vsl-val{color:#fff;}
-.vsl.sel .vsl-lbl{color:#ccc;}
+/* stepper: − val + */
+.stepper{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 6px;}
+.step-arrow{font-size:14px;color:#555;flex-shrink:0;padding:2px 4px;}
+.step-val{font-size:11px;color:#fff;font-family:'Orbitron',monospace;text-align:center;flex:1;}
 
-/* small button row */
-.btn-row{display:flex;gap:4px;}
-.smb{flex:1;height:28px;border:1px solid #2a2a2a;border-radius:4px;background:#111;font-size:8px;color:#666;letter-spacing:1px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.smb.on{border-color:#888;color:#fff;background:#1e1e1e;}
+/* octave strip */
+#oct-strip{display:flex;gap:3px;flex-shrink:0;}
+.octb{flex:1;height:28px;border:1px solid #1e1e1e;border-radius:5px;background:#0d0d0d;font-size:10px;color:#444;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:none;}
+.octb.sel{border-color:#777;color:#fff;background:#1a1a1a;}
 
-/* threshold row */
-.thr-row{display:flex;align-items:center;gap:6px;}
-.thr-lbl{font-size:7px;color:#444;letter-spacing:1px;flex-shrink:0;}
-.thr-track{flex:1;height:14px;background:#111;border:1px solid #1e1e1e;border-radius:2px;position:relative;cursor:pointer;}
-.thr-pip{position:absolute;top:1px;bottom:1px;width:3px;background:#f44;border-radius:1px;opacity:.7;}
-.thr-val{font-size:8px;color:#666;min-width:20px;text-align:right;flex-shrink:0;}
+/* ── ENV PAGE ── */
+#env-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px 6px;border-bottom:1px solid #1a1a1a;flex-shrink:0;}
+#env-hdr-title{font-size:11px;color:#fff;letter-spacing:3px;}
+#env-back{font-size:9px;color:#555;letter-spacing:2px;padding:4px 8px;border:1px solid #222;border-radius:4px;cursor:pointer;}
+#env-op-sel{display:flex;gap:6px;}
+.env-op-tab{font-size:9px;color:#444;letter-spacing:2px;padding:3px 10px;border:1px solid #1e1e1e;border-radius:4px;cursor:pointer;}
+.env-op-tab.sel{color:#fff;border-color:#666;}
 
-/* octave row */
-.oct-row{display:flex;gap:4px;justify-content:center;}
-.octb{flex:1;height:26px;border:1px solid #222;border-radius:4px;background:#0d0d0d;font-size:10px;color:#555;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.octb.sel{border-color:#888;color:#fff;background:#1a1a1a;}
+#env-canvas-wrap{position:relative;flex:1;min-height:0;margin:0 12px;}
+#env-cv{position:absolute;top:0;left:0;}
+
+#env-params{flex-shrink:0;padding:8px 12px;display:flex;gap:8px;}
+.ep-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.ep-lbl{font-size:8px;color:#444;letter-spacing:2px;}
+.ep-lbl.hl{color:#fff;}
+.ep-bar-wrap{width:100%;height:6px;background:#111;border:1px solid #1e1e1e;border-radius:2px;position:relative;touch-action:none;}
+.ep-bar-fill{height:100%;background:#333;border-radius:2px;}
+.ep-col.sel .ep-bar-fill{background:#888;}
+.ep-val{font-size:9px;color:#555;font-family:'Orbitron',monospace;}
+.ep-col.sel .ep-val{color:#fff;}
+/* large +/- buttons for envelope adjustment */
+#env-adj{flex-shrink:0;display:flex;gap:8px;padding:0 12px 10px;}
+.env-adj-btn{flex:1;height:44px;border:1px solid #222;border-radius:8px;background:#111;font-size:22px;color:#666;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:none;}
+.env-adj-btn:active{background:#1e1e1e;color:#fff;border-color:#666;}
+#env-hint{padding:3px 12px 6px;font-size:8px;color:#333;letter-spacing:2px;text-align:center;flex-shrink:0;}
 </style>
 </head>
 <body>
 
-<!-- TAP TO START -->
-<div id="overlay">
-  <h1>DUO</h1>
-  <p>TAP TO START</p>
-</div>
+<div id="overlay"><h1>DUO</h1><p>TAP TO START</p></div>
 
-<!-- HEADER -->
-<div id="hdr">
-  <div class="hdr-l">
-    <span id="logo">DUO</span>
-    <span id="mic-dot"></span>
-    <span id="hdr-status">READY</span>
-  </div>
-  <span id="hdr-patch">WIND</span>
-</div>
+<!-- ══ PAGE MAIN ══ -->
+<div id="pg-main">
 
-<!-- BREATH METER -->
-<div id="breath-bar-wrap">
-  <div id="breath-track">
-    <div id="breath-fill"></div>
-    <div id="breath-thr" style="left:30%"></div>
-  </div>
-</div>
-
-<!-- WAVEFORM -->
-<div id="wave-wrap">
-  <canvas id="wave-cv" height="44"></canvas>
-</div>
-
-<!-- MAIN -->
-<div id="main">
-
-  <!-- NOTE KEYS: 2 rows × 4 notes = 8 notes, C major style + octave shift -->
-  <div id="keys">
-    <div class="key-row" id="row-top"></div>
-    <div class="key-row" id="row-bot"></div>
+  <!-- header -->
+  <div id="hdr">
+    <div class="hdr-l">
+      <span id="logo">DUO</span>
+      <span id="mic-dot"></span>
+      <span id="hdr-status">READY</span>
+    </div>
+    <span id="hdr-note">A4</span>
   </div>
 
-  <!-- PARAM PANEL -->
-  <div id="params">
+  <!-- breath -->
+  <div id="breath-wrap">
+    <div id="breath-track">
+      <div id="breath-fill"></div>
+      <div id="breath-thr" id="breath-thr"></div>
+    </div>
+  </div>
 
-    <!-- OP2 modulator level + OP1/OP2 bitcrush -->
-    <div class="pg" id="pg-op">
-      <div class="pg-title">FM PARAMS</div>
-      <div class="vsl-row">
-        <div class="vsl sel" id="vsl-mod" data-param="mod">
-          <span class="vsl-lbl">MOD</span>
-          <div class="vsl-track" id="vsl-mod-track" style="height:70px;">
-            <div class="vsl-fill" id="vsl-mod-fill" style="height:50%"></div>
-          </div>
-          <span class="vsl-val" id="vsl-mod-val">64</span>
-        </div>
-        <div class="vsl" id="vsl-bc1" data-param="bc1">
-          <span class="vsl-lbl">BC1</span>
-          <div class="vsl-track" id="vsl-bc1-track" style="height:70px;">
-            <div class="vsl-fill" id="vsl-bc1-fill" style="height:80%"></div>
-          </div>
-          <span class="vsl-val" id="vsl-bc1-val">16</span>
-        </div>
-        <div class="vsl" id="vsl-bc2" data-param="bc2">
-          <span class="vsl-lbl">BC2</span>
-          <div class="vsl-track" id="vsl-bc2-track" style="height:70px;">
-            <div class="vsl-fill" id="vsl-bc2-fill" style="height:80%"></div>
-          </div>
-          <span class="vsl-val" id="vsl-bc2-val">16</span>
-        </div>
-        <div class="vsl" id="vsl-rat" data-param="rat">
-          <span class="vsl-lbl">RAT</span>
-          <div class="vsl-track" id="vsl-rat-track" style="height:70px;">
-            <div class="vsl-fill" id="vsl-rat-fill" style="height:12%"></div>
-          </div>
-          <span class="vsl-val" id="vsl-rat-val">2.0</span>
+  <!-- waveform -->
+  <div id="wave-wrap"><canvas id="wave-cv" height="40"></canvas></div>
+
+  <!-- body -->
+  <div id="body">
+
+    <!-- note keys -->
+    <div id="keys">
+      <div class="key-row" id="row-top"></div>
+      <div class="key-row" id="row-bot"></div>
+      <!-- octave strip at bottom -->
+      <div id="oct-strip"></div>
+    </div>
+
+    <!-- sidebar -->
+    <div id="sidebar">
+
+      <!-- MOD DEPTH: tap − / + to adjust -->
+      <div class="big-btn" id="btn-mod" style="flex:1;">
+        <span class="big-btn-label">MOD</span>
+        <div class="stepper">
+          <span class="step-arrow" id="mod-dn">−</span>
+          <span class="step-val" id="mod-val">64</span>
+          <span class="step-arrow" id="mod-up">+</span>
         </div>
       </div>
-    </div>
 
-    <!-- Threshold -->
-    <div class="pg">
-      <div class="pg-title">THRESHOLD</div>
-      <div class="thr-row">
-        <div class="thr-track" id="thr-track">
-          <div class="thr-pip" id="thr-pip" style="left:calc(30% - 1px)"></div>
-        </div>
-        <span class="thr-val" id="thr-val">30</span>
-      </div>
-    </div>
-
-    <!-- Octave -->
-    <div class="pg">
-      <div class="pg-title">OCTAVE</div>
-      <div class="oct-row" id="oct-row"></div>
-    </div>
-
-    <!-- ADSR quick (attack / release) -->
-    <div class="pg" id="pg-adsr">
-      <div class="pg-title">ENVELOPE</div>
-      <div class="vsl-row">
-        <div class="vsl" id="vsl-atk" data-param="atk">
-          <span class="vsl-lbl">ATK</span>
-          <div class="vsl-track" id="vsl-atk-track" style="height:52px;">
-            <div class="vsl-fill" id="vsl-atk-fill" style="height:10%"></div>
-          </div>
-          <span class="vsl-val" id="vsl-atk-val">10</span>
-        </div>
-        <div class="vsl" id="vsl-dec" data-param="dec">
-          <span class="vsl-lbl">DEC</span>
-          <div class="vsl-track" id="vsl-dec-track" style="height:52px;">
-            <div class="vsl-fill" id="vsl-dec-fill" style="height:40%"></div>
-          </div>
-          <span class="vsl-val" id="vsl-dec-val">40</span>
-        </div>
-        <div class="vsl" id="vsl-sus" data-param="sus">
-          <span class="vsl-lbl">SUS</span>
-          <div class="vsl-track" id="vsl-sus-track" style="height:52px;">
-            <div class="vsl-fill" id="vsl-sus-fill" style="height:70%"></div>
-          </div>
-          <span class="vsl-val" id="vsl-sus-val">70</span>
-        </div>
-        <div class="vsl" id="vsl-rel" data-param="rel">
-          <span class="vsl-lbl">REL</span>
-          <div class="vsl-track" id="vsl-rel-track" style="height:52px;">
-            <div class="vsl-fill" id="vsl-rel-fill" style="height:50%"></div>
-          </div>
-          <span class="vsl-val" id="vsl-rel-val">50</span>
+      <!-- OP1 BITCRUSH -->
+      <div class="big-btn" id="btn-bc1" style="flex:1;">
+        <span class="big-btn-label">BC1</span>
+        <div class="stepper">
+          <span class="step-arrow" id="bc1-dn">−</span>
+          <span class="step-val" id="bc1-val">16</span>
+          <span class="step-arrow" id="bc1-up">+</span>
         </div>
       </div>
-    </div>
 
+      <!-- OP2 BITCRUSH -->
+      <div class="big-btn" id="btn-bc2" style="flex:1;">
+        <span class="big-btn-label">BC2</span>
+        <div class="stepper">
+          <span class="step-arrow" id="bc2-dn">−</span>
+          <span class="step-val" id="bc2-val">16</span>
+          <span class="step-arrow" id="bc2-up">+</span>
+        </div>
+      </div>
+
+      <!-- THRESHOLD -->
+      <div class="big-btn" id="btn-thr" style="flex:1;">
+        <span class="big-btn-label">THR</span>
+        <div class="stepper">
+          <span class="step-arrow" id="thr-dn">−</span>
+          <span class="step-val" id="thr-val">30</span>
+          <span class="step-arrow" id="thr-up">+</span>
+        </div>
+      </div>
+
+      <!-- ENVELOPE OPEN -->
+      <div class="big-btn" id="btn-env" style="flex:0;padding:10px 0;flex-shrink:0;">
+        <span class="big-btn-label">ENV</span>
+        <span class="big-btn-val" style="font-size:9px;color:#555;">EDIT ▶</span>
+      </div>
+
+    </div><!-- /sidebar -->
+
+  </div><!-- /body -->
+</div><!-- /pg-main -->
+
+<!-- ══ PAGE ENV ══ -->
+<div id="pg-env">
+  <div id="env-hdr">
+    <span id="env-hdr-title">ENVELOPE</span>
+    <div id="env-op-sel">
+      <div class="env-op-tab sel" id="env-tab0">OP1</div>
+      <div class="env-op-tab" id="env-tab1">OP2</div>
+    </div>
+    <span id="env-back">◀ BACK</span>
   </div>
+
+  <!-- ADSR selector bar -->
+  <div id="env-params"></div>
+
+  <!-- canvas -->
+  <div id="env-canvas-wrap"><canvas id="env-cv"></canvas></div>
+
+  <!-- large − + buttons -->
+  <div id="env-adj">
+    <div class="env-adj-btn" id="env-minus">−</div>
+    <div class="env-adj-btn" id="env-plus">+</div>
+  </div>
+  <div id="env-hint">TAP ADSR SEGMENT ABOVE · USE − + TO ADJUST</div>
 </div>
 
 <script>
 /* ═══════════════════════════════════════════════════════
-   DUO WIND — Breath-Controller FM Synth for iPhone
-   Blow into mic → gate open; tap note key → change pitch
+   DUO WIND v2
+   - Mic RMS → smooth volume (exponential smoothing)
+   - Mic pitch → OP2 ratio (autocorrelation, same as v8)
+   - Note keys → gate pitch, octave buttons
+   - Sidebar steppers: MOD / BC1 / BC2 / THR
+   - ENV page: ADSR canvas editor per OP
    ═══════════════════════════════════════════════════════ */
 
-/* ── SYNTH STATE ── */
 var ops=[
-  {r:10, l:80, br:6, atk:10, dec:40, sus:70, rel:50, label:'CARRIER'},
-  {r:20, l:64, br:6, atk:5,  dec:35, sus:70, rel:40, label:'MODULATOR'}
+  {r:10, l:80, br:6, atk:10, dec:40, sus:70, rel:50, label:'OP1'},
+  {r:20, l:64, br:6, atk:5,  dec:35, sus:70, rel:40, label:'OP2'}
 ];
 var BR_STEPS=[1,2,3,4,6,8,16];
 function brVal(op){return BR_STEPS[Math.max(0,Math.min(BR_STEPS.length-1,op.br))];}
 
 var threshold=30;
 var rootOct=4;
+var smoothedVol=0;   /* exponentially smoothed RMS → volume */
+var smoothedRatio=2.0;
 
-/* note layout: two rows of 4
-   top row: C D E F   bot row: G A B C(+1) */
+/* ── NOTE LAYOUT ── */
 var NOTE_ROWS=[
-  [{n:'C',semi:0,sharp:false},{n:'D',semi:2,sharp:false},{n:'E',semi:4,sharp:false},{n:'F',semi:5,sharp:false}],
-  [{n:'G',semi:7,sharp:false},{n:'A',semi:9,sharp:false},{n:'B',semi:11,sharp:false},{n:'C',semi:12,sharp:false}]
+  [{n:'C',semi:0},{n:'D',semi:2},{n:'E',semi:4},{n:'F',semi:5}],
+  [{n:'G',semi:7},{n:'A',semi:9},{n:'B',semi:11},{n:'C',semi:12}]
 ];
-var activeKeyIdx=null; /* index 0-7 across both rows */
-var heldKeyIdx=null;   /* which key the user's finger is on */
+var heldKeyIdx=null;
 
 function noteFreq(row,col){
-  var note=NOTE_ROWS[row][col];
-  var semi=note.semi+(rootOct-4)*12;
-  return 261.63*Math.pow(2,semi/12);
+  return 261.63*Math.pow(2,(NOTE_ROWS[row][col].semi+(rootOct-4)*12)/12);
 }
 function currentFreq(){
-  if(heldKeyIdx===null)return noteFreq(0,0);
+  if(heldKeyIdx===null)return 261.63*Math.pow(2,(rootOct-4)*12/12);
+  return noteFreq(Math.floor(heldKeyIdx/4),heldKeyIdx%4);
+}
+function noteLabel(){
+  if(heldKeyIdx===null)return 'C'+rootOct;
   var r=Math.floor(heldKeyIdx/4),c=heldKeyIdx%4;
-  return noteFreq(r,c);
+  var note=NOTE_ROWS[r][c];
+  var oct=rootOct+Math.floor(note.semi/12);
+  return note.n+oct;
 }
 
 /* ── BUILD NOTE KEYS ── */
@@ -266,213 +272,279 @@ function currentFreq(){
     NOTE_ROWS[ri].forEach(function(note,ci){
       var idx=ri*4+ci;
       var el=document.createElement('div');
-      el.className='nkey'+(note.sharp?' sharp':'');
-      el.id='nk'+idx;
-      el.innerHTML='<span class="nkey-name">'+note.n+'</span><span class="nkey-oct" id="nk-oct'+idx+'"></span>';
-      /* touch: hold = sustain this pitch */
-      el.addEventListener('touchstart',function(e){e.preventDefault();onKeyDown(idx);},{passive:false});
-      el.addEventListener('touchend',function(e){e.preventDefault();onKeyUp(idx);},{passive:false});
-      el.addEventListener('touchcancel',function(){onKeyUp(idx);});
-      /* mouse for desktop testing */
-      el.addEventListener('mousedown',function(e){e.preventDefault();onKeyDown(idx);});
-      el.addEventListener('mouseup',function(e){e.preventDefault();onKeyUp(idx);});
+      el.className='nkey';el.id='nk'+idx;
+      el.style.touchAction='none';
+      el.innerHTML='<span class="nkey-name">'+note.n+'</span><span class="nkey-sub" id="nksub'+idx+'"></span>';
+      function dn(e){e.preventDefault();onKeyDown(idx);}
+      function up(e){e.preventDefault();onKeyUp(idx);}
+      el.addEventListener('touchstart',dn,{passive:false});
+      el.addEventListener('touchend',up,{passive:false});
+      el.addEventListener('touchcancel',up);
+      el.addEventListener('mousedown',dn);
+      el.addEventListener('mouseup',up);
       el.addEventListener('mouseleave',function(){if(heldKeyIdx===idx)onKeyUp(idx);});
       rowEl.appendChild(el);
     });
   });
-  updateKeyOcts();
+  updateKeyLabels();
 })();
 
-function updateKeyOcts(){
-  for(var ri=0;ri<2;ri++){
-    for(var ci=0;ci<4;ci++){
-      var idx=ri*4+ci;
-      var semi=NOTE_ROWS[ri][ci].semi+(rootOct-4)*12;
-      var oct=4+Math.floor(semi/12);
-      document.getElementById('nk-oct'+idx).textContent=oct;
-    }
+function updateKeyLabels(){
+  for(var ri=0;ri<2;ri++)for(var ci=0;ci<4;ci++){
+    var idx=ri*4+ci;
+    var semi=NOTE_ROWS[ri][ci].semi;
+    var oct=rootOct+Math.floor(semi/12);
+    var el=document.getElementById('nksub'+idx);
+    if(el)el.textContent=oct;
   }
 }
 
-function setKeyActive(idx,on){
-  if(idx===null||idx<0||idx>7)return;
+function setKeyVis(idx,on){
   var el=document.getElementById('nk'+idx);
-  if(el){if(on)el.classList.add('active');else el.classList.remove('active');}
+  if(el){if(on)el.classList.add('act');else el.classList.remove('act');}
 }
 
 function onKeyDown(idx){
-  if(heldKeyIdx!==null&&heldKeyIdx!==idx)setKeyActive(heldKeyIdx,false);
+  if(heldKeyIdx!==null&&heldKeyIdx!==idx)setKeyVis(heldKeyIdx,false);
   heldKeyIdx=idx;
-  setKeyActive(idx,true);
-  /* if gate is open, glide to new pitch */
+  setKeyVis(idx,true);
+  document.getElementById('hdr-note').textContent=noteLabel();
+  /* glide if gate open */
   if(gateOpen&&activeNote&&!activeNote.stopScheduled&&AC){
-    var freq=currentFreq();
-    var now=AC.currentTime;
-    var o1=ops[0],o2=ops[1];
-    var f1=freq*(o1.r/10),f2=freq*(o2.r/10);
-    try{
-      activeNote.s1.frequency.cancelScheduledValues(now);
-      activeNote.s1.frequency.setTargetAtTime(f1,now,0.02);
-      activeNote.s2.frequency.cancelScheduledValues(now);
-      activeNote.s2.frequency.setTargetAtTime(f2,now,0.02);
-      /* update modulation depth for new freq */
-      activeNote.g21.gain.cancelScheduledValues(now);
-      activeNote.g21.gain.setTargetAtTime((o2.l/127)*freq*4,now,0.02);
-    }catch(e){}
+    glideToFreq(currentFreq());
   }
 }
-
 function onKeyUp(idx){
-  if(heldKeyIdx===idx){
-    setKeyActive(idx,false);
-    heldKeyIdx=null;
-  }
+  if(heldKeyIdx===idx){setKeyVis(idx,false);heldKeyIdx=null;}
+}
+function glideToFreq(freq){
+  var now=AC.currentTime;
+  var o1=ops[0],o2=ops[1];
+  try{
+    activeNote.s1.frequency.cancelScheduledValues(now);
+    activeNote.s1.frequency.setTargetAtTime(freq*(o1.r/10),now,0.025);
+    activeNote.s2.frequency.cancelScheduledValues(now);
+    activeNote.s2.frequency.setTargetAtTime(freq*(o2.r/10),now,0.025);
+    activeNote.g21.gain.cancelScheduledValues(now);
+    activeNote.g21.gain.setTargetAtTime((o2.l/127)*freq*4,now,0.025);
+  }catch(e){}
 }
 
-/* ── OCTAVE BUTTONS ── */
+/* ── OCTAVE STRIP ── */
 (function(){
-  var row=document.getElementById('oct-row');
-  for(var o=2;o<=6;o++){
-    (function(oct){
-      var b=document.createElement('div');
-      b.className='octb'+(oct===rootOct?' sel':'');
-      b.id='oct'+oct;
-      b.textContent=oct;
-      b.addEventListener('touchend',function(e){e.preventDefault();setOctave(oct);},{passive:false});
-      b.addEventListener('click',function(){setOctave(oct);});
-      row.appendChild(b);
-    })(o);
-  }
+  var strip=document.getElementById('oct-strip');
+  for(var o=2;o<=6;o++){(function(oct){
+    var b=document.createElement('div');
+    b.className='octb'+(oct===rootOct?' sel':'');
+    b.id='octb'+oct;b.textContent=oct;
+    b.style.touchAction='none';
+    b.addEventListener('touchend',function(e){e.preventDefault();setOctave(oct);},{passive:false});
+    b.addEventListener('click',function(){setOctave(oct);});
+    strip.appendChild(b);
+  })(o);}
 })();
-
 function setOctave(oct){
   rootOct=oct;
   document.querySelectorAll('.octb').forEach(function(b){b.classList.remove('sel');});
-  var el=document.getElementById('oct'+oct);
-  if(el)el.classList.add('sel');
-  updateKeyOcts();
-  /* glide if note held */
-  if(gateOpen&&activeNote&&!activeNote.stopScheduled&&AC&&heldKeyIdx!==null){
-    var freq=currentFreq();
-    var now=AC.currentTime;
-    var o1=ops[0],o2=ops[1];
-    try{
-      activeNote.s1.frequency.cancelScheduledValues(now);
-      activeNote.s1.frequency.setTargetAtTime(freq*(o1.r/10),now,0.02);
-      activeNote.s2.frequency.cancelScheduledValues(now);
-      activeNote.s2.frequency.setTargetAtTime(freq*(o2.r/10),now,0.02);
-      activeNote.g21.gain.cancelScheduledValues(now);
-      activeNote.g21.gain.setTargetAtTime((o2.l/127)*freq*4,now,0.02);
-    }catch(e){}
+  var el=document.getElementById('octb'+oct);if(el)el.classList.add('sel');
+  updateKeyLabels();
+  document.getElementById('hdr-note').textContent=noteLabel();
+  if(gateOpen&&activeNote&&!activeNote.stopScheduled&&AC)glideToFreq(currentFreq());
+}
+
+/* ── STEPPER BUTTONS ── */
+function makeStepper(upId,dnId,get,set,min,max,step,displayFn,afterFn){
+  function adj(dir){
+    var v=Math.max(min,Math.min(max,get()+dir*step));
+    set(v);
+    if(afterFn)afterFn();
   }
+  function bindTap(id,dir){
+    var el=document.getElementById(id);if(!el)return;
+    el.addEventListener('touchend',function(e){e.preventDefault();adj(dir);},{passive:false});
+    el.addEventListener('click',function(){adj(dir);});
+  }
+  bindTap(upId,1);bindTap(dnId,-1);
 }
 
-/* ── VERTICAL SLIDERS ── */
-/* Each vsl draggable via touch/mouse, 0-100 range */
-var VSL_DEFS={
-  mod:{get:function(){return ops[1].l;},set:function(v){ops[1].l=Math.round(v);
-       /* live update mod gain if note playing */
-       if(activeNote&&AC&&!activeNote.stopScheduled){
-         var freq=currentFreq();
-         activeNote.g21.gain.setTargetAtTime((ops[1].l/127)*freq*4,AC.currentTime,0.02);
-       }},
-       fill:'vsl-mod-fill',val:'vsl-mod-val',display:function(){return ops[1].l;},pct:function(){return ops[1].l/127*100;}},
-  bc1:{get:function(){return ops[0].br;},set:function(v){ops[0].br=Math.round(v/100*(BR_STEPS.length-1));drawWaveform();},
-       fill:'vsl-bc1-fill',val:'vsl-bc1-val',display:function(){return brVal(ops[0]);},pct:function(){return ops[0].br/(BR_STEPS.length-1)*100;},
-       /* map touch 0-100 range to br index */
-       toParam:function(pct){return pct/100*(BR_STEPS.length-1);}},
-  bc2:{get:function(){return ops[1].br;},set:function(v){ops[1].br=Math.round(v/100*(BR_STEPS.length-1));drawWaveform();},
-       fill:'vsl-bc2-fill',val:'vsl-bc2-val',display:function(){return brVal(ops[1]);},pct:function(){return ops[1].br/(BR_STEPS.length-1)*100;},
-       toParam:function(pct){return pct/100*(BR_STEPS.length-1);}},
-  rat:{get:function(){return ops[1].r;},set:function(v){ops[1].r=Math.max(10,Math.min(80,Math.round(v/100*70+10)));
-       if(activeNote&&AC&&!activeNote.stopScheduled){
-         var freq=currentFreq();
-         activeNote.s2.frequency.setTargetAtTime(freq*(ops[1].r/10),AC.currentTime,0.02);
-       }drawWaveform();},
-       fill:'vsl-rat-fill',val:'vsl-rat-val',display:function(){return (ops[1].r/10).toFixed(1);},pct:function(){return (ops[1].r-10)/70*100;}},
-  atk:{get:function(){return ops[0].atk;},set:function(v){ops[0].atk=Math.round(v);},
-       fill:'vsl-atk-fill',val:'vsl-atk-val',display:function(){return ops[0].atk;},pct:function(){return ops[0].atk;}},
-  dec:{get:function(){return ops[0].dec;},set:function(v){ops[0].dec=Math.round(v);},
-       fill:'vsl-dec-fill',val:'vsl-dec-val',display:function(){return ops[0].dec;},pct:function(){return ops[0].dec;}},
-  sus:{get:function(){return ops[0].sus;},set:function(v){ops[0].sus=Math.round(v);},
-       fill:'vsl-sus-fill',val:'vsl-sus-val',display:function(){return ops[0].sus;},pct:function(){return ops[0].sus;}},
-  rel:{get:function(){return ops[0].rel;},set:function(v){ops[0].rel=Math.round(v);},
-       fill:'vsl-rel-fill',val:'vsl-rel-val',display:function(){return ops[0].rel;},pct:function(){return ops[0].rel;}}
-};
+/* MOD depth (ops[1].l 0-127) */
+makeStepper('mod-up','mod-dn',
+  function(){return ops[1].l;},
+  function(v){ops[1].l=Math.round(v);
+    if(activeNote&&AC&&!activeNote.stopScheduled){
+      activeNote.g21.gain.setTargetAtTime((ops[1].l/127)*currentFreq()*4,AC.currentTime,0.02);}
+    document.getElementById('mod-val').textContent=ops[1].l;drawWaveform();},
+  0,127,8,null,null);
 
-function updateVslDisplay(key){
-  var d=VSL_DEFS[key];if(!d)return;
-  var pct=d.pct();
-  document.getElementById(d.fill).style.height=Math.max(0,Math.min(100,pct))+'%';
-  document.getElementById(d.val).textContent=d.display();
-}
-function initVslDisplays(){Object.keys(VSL_DEFS).forEach(updateVslDisplay);}
+/* BC1 (ops[0].br) */
+makeStepper('bc1-up','bc1-dn',
+  function(){return ops[0].br;},
+  function(v){ops[0].br=Math.round(v);document.getElementById('bc1-val').textContent=brVal(ops[0]);drawWaveform();},
+  0,BR_STEPS.length-1,1,null,null);
 
-/* make each vsl-track draggable */
+/* BC2 (ops[1].br) */
+makeStepper('bc2-up','bc2-dn',
+  function(){return ops[1].br;},
+  function(v){ops[1].br=Math.round(v);document.getElementById('bc2-val').textContent=brVal(ops[1]);drawWaveform();},
+  0,BR_STEPS.length-1,1,null,null);
+
+/* THR */
+makeStepper('thr-up','thr-dn',
+  function(){return threshold;},
+  function(v){threshold=Math.round(v);document.getElementById('thr-val').textContent=threshold;
+    document.getElementById('breath-thr').style.left=threshold+'%';},
+  0,90,5,null,null);
+
+/* init stepper displays */
+document.getElementById('mod-val').textContent=ops[1].l;
+document.getElementById('bc1-val').textContent=brVal(ops[0]);
+document.getElementById('bc2-val').textContent=brVal(ops[1]);
+document.getElementById('thr-val').textContent=threshold;
+document.getElementById('breath-thr').style.left=threshold+'%';
+
+/* ── ENV PAGE ── */
+var envOp=0; /* 0=OP1 1=OP2 */
+var envSeg=0; /* 0=atk 1=dec 2=sus 3=rel */
+var ENV_KEYS=['atk','dec','sus','rel'];
+var ENV_LBLS=['ATTACK','DECAY','SUSTAIN','RELEASE'];
+var DPR=Math.min(window.devicePixelRatio||1,2);
+
+document.getElementById('btn-env').addEventListener('touchend',function(e){e.preventDefault();showEnvPage();},{passive:false});
+document.getElementById('btn-env').addEventListener('click',showEnvPage);
+document.getElementById('env-back').addEventListener('touchend',function(e){e.preventDefault();showMainPage();},{passive:false});
+document.getElementById('env-back').addEventListener('click',showMainPage);
+document.getElementById('env-tab0').addEventListener('touchend',function(e){e.preventDefault();setEnvOp(0);},{passive:false});
+document.getElementById('env-tab0').addEventListener('click',function(){setEnvOp(0);});
+document.getElementById('env-tab1').addEventListener('touchend',function(e){e.preventDefault();setEnvOp(1);},{passive:false});
+document.getElementById('env-tab1').addEventListener('click',function(){setEnvOp(1);});
+
+/* large minus/plus */
 (function(){
-  Object.keys(VSL_DEFS).forEach(function(key){
-    var trackId='vsl-'+key+'-track';
-    var track=document.getElementById(trackId);
-    if(!track)return;
-    var dragging=false;
+  var STEP=5;
+  function adj(dir){
+    var op=ops[envOp];var k=ENV_KEYS[envSeg];
+    op[k]=Math.max(0,Math.min(100,op[k]+dir*STEP));
+    buildEnvParams();drawEnvCanvas();
+  }
+  function bindAdj(id,dir){
+    var el=document.getElementById(id);
+    /* hold-repeat */
+    var holdTimer=null,repeatTimer=null;
+    function start(){adj(dir);holdTimer=setTimeout(function(){repeatTimer=setInterval(function(){adj(dir);},80);},350);}
+    function stop(){clearTimeout(holdTimer);clearInterval(repeatTimer);holdTimer=repeatTimer=null;}
+    el.addEventListener('touchstart',function(e){e.preventDefault();start();},{passive:false});
+    el.addEventListener('touchend',function(e){e.preventDefault();stop();},{passive:false});
+    el.addEventListener('touchcancel',stop);
+    el.addEventListener('mousedown',start);
+    window.addEventListener('mouseup',stop);
+  }
+  bindAdj('env-minus',-1);bindAdj('env-plus',1);
+})();
 
-    function applyY(clientY){
-      var rect=track.getBoundingClientRect();
-      var pct=1-(clientY-rect.top)/rect.height;
-      pct=Math.max(0,Math.min(1,pct));
-      var d=VSL_DEFS[key];
-      if(d.toParam){d.set(d.toParam(pct*100));}
-      else{d.set(pct*100);}
-      updateVslDisplay(key);
-    }
+function setEnvOp(i){
+  envOp=i;
+  document.getElementById('env-tab0').className='env-op-tab'+(i===0?' sel':'');
+  document.getElementById('env-tab1').className='env-op-tab'+(i===1?' sel':'');
+  buildEnvParams();drawEnvCanvas();
+}
 
-    track.addEventListener('touchstart',function(e){e.preventDefault();dragging=true;applyY(e.touches[0].clientY);},{passive:false});
-    track.addEventListener('touchmove',function(e){e.preventDefault();if(dragging)applyY(e.touches[0].clientY);},{passive:false});
-    track.addEventListener('touchend',function(e){e.preventDefault();dragging=false;},{passive:false});
-    track.addEventListener('mousedown',function(e){dragging=true;applyY(e.clientY);});
-    window.addEventListener('mousemove',function(e){if(dragging)applyY(e.clientY);});
-    window.addEventListener('mouseup',function(){dragging=false;});
+function buildEnvParams(){
+  var el=document.getElementById('env-params');el.innerHTML='';
+  var op=ops[envOp];
+  ENV_KEYS.forEach(function(k,i){
+    var col=document.createElement('div');
+    col.className='ep-col'+(i===envSeg?' sel':'');
+    col.style.cursor='pointer';
+    var pct=Math.round(op[k]);
+    col.innerHTML='<span class="ep-lbl'+(i===envSeg?' hl':'')+'">'+ENV_LBLS[i].substring(0,3)+'</span>'+
+      '<div class="ep-bar-wrap"><div class="ep-bar-fill" style="width:'+pct+'%"></div></div>'+
+      '<span class="ep-val">'+op[k]+'</span>';
+    (function(ii){
+      col.addEventListener('touchend',function(e){e.preventDefault();envSeg=ii;buildEnvParams();drawEnvCanvas();},{passive:false});
+      col.addEventListener('click',function(){envSeg=ii;buildEnvParams();drawEnvCanvas();});
+    })(i);
+    el.appendChild(col);
   });
-})();
+}
 
-/* ── THRESHOLD TRACK ── */
-(function(){
-  var track=document.getElementById('thr-track');
-  var dragging=false;
-  function applyX(clientX){
-    var rect=track.getBoundingClientRect();
-    var pct=Math.max(0,Math.min(1,(clientX-rect.left)/rect.width));
-    threshold=Math.round(pct*100);
-    document.getElementById('thr-pip').style.left='calc('+threshold+'% - 1px)';
-    document.getElementById('thr-val').textContent=threshold;
-    document.getElementById('breath-thr').style.left=threshold+'%';
-  }
-  track.addEventListener('touchstart',function(e){e.preventDefault();dragging=true;applyX(e.touches[0].clientX);},{passive:false});
-  track.addEventListener('touchmove',function(e){e.preventDefault();if(dragging)applyX(e.touches[0].clientX);},{passive:false});
-  track.addEventListener('touchend',function(e){e.preventDefault();dragging=false;},{passive:false});
-  track.addEventListener('mousedown',function(e){dragging=true;applyX(e.clientX);});
-  window.addEventListener('mousemove',function(e){if(dragging&&track.contains(document.elementFromPoint(e.clientX,e.clientY)))applyX(e.clientX);});
-  window.addEventListener('mouseup',function(){dragging=false;});
-})();
+function drawEnvCanvas(){
+  var wrap=document.getElementById('env-canvas-wrap');
+  var cv=document.getElementById('env-cv');
+  var W=wrap.offsetWidth,H=wrap.offsetHeight;
+  if(!W||!H)return;
+  cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';
+  var ctx=cv.getContext('2d');ctx.scale(DPR,DPR);ctx.clearRect(0,0,W,H);
+
+  var op=ops[envOp];
+  var px=14,pt=14,pb=18,uw=W-px*2,uh=H-pt-pb;
+  var eH=Math.round(uh*0.55),eT=pt+Math.round((uh-eH)/2),eB=eT+eH;
+  var aT=op.atk+op.dec+50;
+  var aZ=uw*0.78,rZ=uw*0.22;
+  var aw=op.atk/aT*aZ,dw=Math.max(8,op.dec/aT*aZ);
+  var sL=0.12+(op.sus/100)*0.72,sy=eB-Math.round(eH*sL);
+  var rw=(op.rel/100)*rZ;
+  var x0=px,sX=px+aZ;
+  var pts=[[x0,eB],[x0+aw,eT],[x0+aw+dw,sy],[sX,sy],[sX+rw,eB]];
+
+  /* fill */
+  ctx.fillStyle='#0f0f0f';ctx.beginPath();
+  pts.forEach(function(p,i){i===0?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]);});
+  ctx.lineTo(pts[4][0],eB);ctx.lineTo(x0,eB);ctx.closePath();ctx.fill();
+
+  /* segments */
+  var segs=[[0,1],[1,2],[2,3],[3,4]];
+  segs.forEach(function(s,i){
+    var hi=envSeg===i;
+    ctx.strokeStyle=hi?'#fff':'#555';ctx.lineWidth=(hi?2:1)/DPR;
+    ctx.beginPath();ctx.moveTo(pts[s[0]][0],pts[s[0]][1]);ctx.lineTo(pts[s[1]][0],pts[s[1]][1]);ctx.stroke();
+  });
+
+  /* dots */
+  pts.forEach(function(p,i){
+    ctx.fillStyle=(i>0&&i<5&&envSeg===i-1)||envSeg===i?'#fff':'#555';
+    ctx.beginPath();ctx.arc(p[0],p[1],4,0,Math.PI*2);ctx.fill();
+  });
+
+  /* labels */
+  var lY=H-4;ctx.font='9px Barlow Condensed,Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+  var lbls=['A','D','S','R'];
+  lbls.forEach(function(l,i){
+    ctx.fillStyle=envSeg===i?'#fff':'#444';
+    var midX;
+    if(i===0)midX=x0+aw/2;
+    else if(i===1)midX=x0+aw+dw/2;
+    else if(i===2)midX=(x0+aw+dw+sX)/2;
+    else midX=sX+rw/2;
+    ctx.fillText(l,midX,lY);
+  });
+}
+
+function showEnvPage(){
+  document.getElementById('pg-main').style.display='none';
+  document.getElementById('pg-env').style.display='flex';
+  buildEnvParams();
+  setTimeout(drawEnvCanvas,30);
+}
+function showMainPage(){
+  document.getElementById('pg-env').style.display='none';
+  document.getElementById('pg-main').style.display='flex';
+  drawWaveform();
+}
 
 /* ── WAVEFORM ── */
-var DPR=Math.min(window.devicePixelRatio||1,2);
-var waveImpact=0,waveImpactTimer=null;
+var waveImpact=0;
+var _waveRaf=null;
 
 function drawWaveform(){
   var cv=document.getElementById('wave-cv');
   var wrap=document.getElementById('wave-wrap');
-  var W=wrap.offsetWidth||300,H=44;
+  var W=wrap.offsetWidth||300,H=40;
   cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';
-  var ctx=cv.getContext('2d');
-  ctx.scale(DPR,DPR);
-  ctx.clearRect(0,0,W,H);
-
+  var ctx=cv.getContext('2d');ctx.scale(DPR,DPR);ctx.clearRect(0,0,W,H);
   var mid=H/2,amp=mid-3;
-  var baseAmp=0.12+waveImpact*0.88;
+  var baseAmp=0.1+waveImpact*0.9;
   var o1=ops[0],o2=ops[1];
   function qtz(v,bits){if(bits>=16)return v;var s=Math.pow(2,bits)-1;return Math.round(v*s)/s;}
-
   ctx.strokeStyle='#fff';ctx.lineWidth=1/DPR;ctx.beginPath();
   for(var x=0;x<W;x++){
     var t=x/W;
@@ -483,36 +555,34 @@ function drawWaveform(){
     x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
   }
   ctx.stroke();
-
-  /* OP2 line dimmer */
-  var modAmp=waveImpact*(o2.l/127);
-  if(modAmp>0.01){
-    ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=0.5/DPR;ctx.beginPath();
+  /* OP2 ghost */
+  if(waveImpact>0.05){
+    ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=0.5/DPR;ctx.beginPath();
     for(var x=0;x<W;x++){
       var t=x/W;
-      var s2=qtz(Math.sin(2*Math.PI*(o2.r/10)*t),brVal(o2));
-      var y=mid-s2*amp*modAmp*0.5;
-      x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      var s2=qtz(Math.sin(2*Math.PI*(o2.r/10)*t),brVal(o2))*waveImpact*(o2.l/127)*0.4;
+      x===0?ctx.moveTo(x,mid-s2*amp):ctx.lineTo(x,mid-s2*amp);
     }
     ctx.stroke();
   }
 }
 
-function triggerWaveImpact(str){
-  waveImpact=Math.min(1,str);
-  if(waveImpactTimer)clearInterval(waveImpactTimer);
-  waveImpactTimer=setInterval(function(){
-    waveImpact*=0.94;
+function animateWave(){
+  if(_waveRaf)return;
+  function step(){
+    waveImpact*=0.965;
     drawWaveform();
-    if(waveImpact<0.01){clearInterval(waveImpactTimer);waveImpactTimer=null;waveImpact=0;drawWaveform();}
-  },16);
+    if(waveImpact>0.01)_waveRaf=requestAnimationFrame(step);
+    else{waveImpact=0;drawWaveform();_waveRaf=null;}
+  }
+  _waveRaf=requestAnimationFrame(step);
 }
 
 /* ── AUDIO ENGINE ── */
 var AC=null,masterLimiter=null;
-var micStream=null,micSource=null,analyser=null,micActive=false;
+var micStream=null,micSource=null,analyser=null;
+var micActive=false,micPollId=null;
 var micAnalyseData=null,pitchBuffer=null;
-var micPollId=null;
 var activeNote=null,gateOpen=false;
 
 var _bitCurveCache={};
@@ -520,11 +590,8 @@ function makeBitCurve(bits){
   if(_bitCurveCache[bits])return _bitCurveCache[bits];
   var n=256,curve=new Float32Array(n),steps=Math.pow(2,bits)-1;
   for(var i=0;i<n;i++){var x=(i*2/(n-1))-1;curve[i]=Math.round(x*steps)/steps;}
-  _bitCurveCache[bits]=curve;
-  return curve;
+  _bitCurveCache[bits]=curve;return curve;
 }
-
-function adsrTime(val,minT,maxT){return minT*Math.pow(maxT/minT,val/100);}
 
 function initAC(){
   if(!AC){
@@ -538,73 +605,60 @@ function initAC(){
   return Promise.resolve();
 }
 
-function _fmOn(freq,strength,gateMode){
-  var now=AC.currentTime;
-  var startMod=now+0.001;
-  var startCar=now+0.002;
-  var o1=ops[0],o2=ops[1];
+/* PITCH DETECTION — autocorrelation (same as v8) */
+function detectPitch(buf,sr){
+  var n=buf.length,rms=0;
+  for(var i=0;i<n;i++)rms+=buf[i]*buf[i];
+  rms=Math.sqrt(rms/n);
+  if(rms<0.005)return -1;
+  var ac=new Float32Array(n);
+  for(var lag=0;lag<n;lag++){var s=0;for(var j=0;j<n-lag;j++)s+=buf[j]*buf[j+lag];ac[lag]=s;}
+  var ac0=ac[0]||1;for(var i=0;i<n;i++)ac[i]/=ac0;
+  var i=1;while(i<n&&ac[i]>0)i++;
+  var peakVal=-Infinity,peakLag=i;
+  while(i<n){if(ac[i]>peakVal){peakVal=ac[i];peakLag=i;}i++;if(i<n&&ac[i-1]>0.5&&ac[i]<ac[i-1])break;}
+  if(peakVal<0.2)return -1;
+  return sr/peakLag;
+}
 
+function _fmOn(freq,strength){
+  /* GATE MODE always — no auto-release */
+  var now=AC.currentTime;
+  var o1=ops[0],o2=ops[1];
   var s1=AC.createOscillator(),s2=AC.createOscillator();
   var g21=AC.createGain();
   var env=AC.createGain(),env2=AC.createGain(),vol=AC.createGain();
   var bc1=AC.createWaveShaper(),bc2=AC.createWaveShaper();
-  bc1.curve=makeBitCurve(brVal(o1));
-  bc2.curve=makeBitCurve(brVal(o2));
-
+  bc1.curve=makeBitCurve(brVal(o1));bc2.curve=makeBitCurve(brVal(o2));
   s1.type=s2.type='sine';
-  s1.frequency.value=freq*(o1.r/10);
-  s2.frequency.value=freq*(o2.r/10);
+  s1.frequency.value=freq*(o1.r/10);s2.frequency.value=freq*(o2.r/10);
   g21.gain.value=(o2.l/127)*freq*4;
+  vol.gain.value=strength*0.85;
 
-  var volLevel=80; /* fixed internal level */
-  vol.gain.value=(volLevel/100)*strength*0.85;
-
-  /* OP1 envelope */
+  /* OP1 envelope: A+D, hold at sustain */
   var at1=0.002*Math.pow(125,o1.atk/100);
   var dc1=0.01*Math.pow(150,o1.dec/100);
   var su1=Math.max(0.001,Math.pow(o1.sus/100,1.4));
   var rl1=0.01*Math.pow(200,o1.rel/100);
-  env.gain.setValueAtTime(0.0001,startCar);
-  env.gain.linearRampToValueAtTime(1,startCar+at1);
-  env.gain.linearRampToValueAtTime(su1,startCar+at1+dc1);
-  /* hold at sustain — no further ramp unless gateMode=false */
+  env.gain.setValueAtTime(0.0001,now);
+  env.gain.linearRampToValueAtTime(1,now+at1);
+  env.gain.linearRampToValueAtTime(su1,now+at1+dc1);
 
   /* OP2 envelope */
   var at2=0.002*Math.pow(125,o2.atk/100);
   var dc2=0.01*Math.pow(150,o2.dec/100);
   var su2=Math.max(0.001,Math.pow(o2.sus/100,1.4));
   var rl2=0.01*Math.pow(200,o2.rel/100);
-  env2.gain.setValueAtTime(0.0001,startMod);
-  env2.gain.linearRampToValueAtTime(1,startMod+at2);
-  env2.gain.linearRampToValueAtTime(su2,startMod+at2+dc2);
+  env2.gain.setValueAtTime(0.0001,now);
+  env2.gain.linearRampToValueAtTime(1,now+at2);
+  env2.gain.linearRampToValueAtTime(su2,now+at2+dc2);
 
-  /* routing */
   s2.connect(bc2);bc2.connect(env2);env2.connect(g21);g21.connect(s1.frequency);
   s1.connect(bc1);bc1.connect(env);env.connect(vol);vol.connect(masterLimiter);
+  s2.start(now);s1.start(now);
 
-  s2.start(startMod);s1.start(startCar);
-
-  var note={s1:s1,s2:s2,env:env,env2:env2,vol:vol,g21:g21,bc1:bc1,bc2:bc2,
-            su1:su1,su2:su2,rl1:rl1,rl2:rl2,stopScheduled:false};
-  activeNote=note;
-
-  if(!gateMode){
-    /* auto-release */
-    var sustainDur=Math.max(0.05,at1+dc1);
-    var relStart=startCar+sustainDur;
-    env.gain.setValueAtTime(su1,relStart);
-    env.gain.linearRampToValueAtTime(0.0001,relStart+rl1);
-    env2.gain.setValueAtTime(su2,relStart);
-    env2.gain.linearRampToValueAtTime(0.0001,relStart+rl2);
-    var stopT=relStart+Math.max(rl1,rl2)+0.1;
-    note.stopScheduled=true;
-    try{s1.stop(stopT);s2.stop(stopT);}catch(e){}
-    setTimeout(function(){
-      if(activeNote===note)activeNote=null;
-      _disconnectNote(note);
-    },(stopT-now+0.15)*1000);
-  }
-  return note;
+  activeNote={s1:s1,s2:s2,env:env,env2:env2,vol:vol,g21:g21,bc1:bc1,bc2:bc2,
+              su1:su1,su2:su2,rl1:rl1,rl2:rl2,stopScheduled:false};
 }
 
 function _disconnectNote(note){
@@ -618,12 +672,10 @@ function releaseActive(){
   if(!note||note.stopScheduled)return;
   note.stopScheduled=true;
   var now=AC.currentTime;
-  /* snapshot current gain values before cancelling */
-  var curE=note.su1,curE2=note.su2;
-  try{note.env.gain.cancelAndHoldAtTime(now);}
-  catch(e){try{note.env.gain.cancelScheduledValues(now);note.env.gain.setValueAtTime(curE,now);}catch(e2){}}
-  try{note.env2.gain.cancelAndHoldAtTime(now);}
-  catch(e){try{note.env2.gain.cancelScheduledValues(now);note.env2.gain.setValueAtTime(curE2,now);}catch(e2){}}
+  try{note.env.gain.cancelAndHoldAtTime(now);}catch(e){
+    try{note.env.gain.cancelScheduledValues(now);note.env.gain.setValueAtTime(note.su1,now);}catch(e2){}}
+  try{note.env2.gain.cancelAndHoldAtTime(now);}catch(e){
+    try{note.env2.gain.cancelScheduledValues(now);note.env2.gain.setValueAtTime(note.su2,now);}catch(e2){}}
   note.env.gain.linearRampToValueAtTime(0.0001,now+note.rl1);
   note.env2.gain.linearRampToValueAtTime(0.0001,now+note.rl2);
   var stopT=now+Math.max(note.rl1,note.rl2)+0.1;
@@ -634,14 +686,14 @@ function releaseActive(){
   },(Math.max(note.rl1,note.rl2)+0.2)*1000);
 }
 
-function triggerGate(strength){
-  if(!AC||AC.state!=='running')return;
-  if(activeNote&&!activeNote.stopScheduled)releaseActive();
-  _fmOn(currentFreq(),strength,true);
-  triggerWaveImpact(strength);
+/* smooth volume: update vol.gain live during gate */
+function setNoteVol(v){
+  if(activeNote&&!activeNote.stopScheduled&&AC){
+    activeNote.vol.gain.setTargetAtTime(Math.max(0.001,v),AC.currentTime,0.04);
+  }
 }
 
-/* ── MIC ENGINE ── */
+/* ── MIC POLL ── */
 function startMic(){
   if(micActive)return;
   navigator.mediaDevices.getUserMedia({
@@ -652,10 +704,12 @@ function startMic(){
     var boost=AC.createGain();boost.gain.value=4;
     micSource.connect(boost);
     analyser=AC.createAnalyser();
-    analyser.fftSize=2048;analyser.smoothingTimeConstant=0.3;
+    analyser.fftSize=2048;
+    analyser.smoothingTimeConstant=0;
     boost.connect(analyser);
     try{var sink=AC.createMediaStreamDestination();analyser.connect(sink);}catch(e){}
     micAnalyseData=new Uint8Array(analyser.frequencyBinCount);
+    pitchBuffer=new Float32Array(analyser.fftSize);
     micActive=true;
     document.getElementById('mic-dot').classList.add('live');
     setSt('MIC ON');
@@ -663,48 +717,77 @@ function startMic(){
   }).catch(function(e){setSt('NO MIC');console.warn(e);});
 }
 
-var prevRms=0;
 function startPoll(){
   var POLL=16;
+  /* exponential smoothing coefficients */
+  var VOL_ATTACK=0.15;   /* fast attack (0=instant 1=never) */
+  var VOL_RELEASE=0.96;  /* slow release (keeps volume from stuttering) */
+
   function poll(){
     if(!micActive||!analyser)return;
     analyser.getByteTimeDomainData(micAnalyseData);
     var sum=0;
     for(var i=0;i<micAnalyseData.length;i++){var s=(micAnalyseData[i]-128)/128;sum+=s*s;}
     var rms=Math.sqrt(sum/micAnalyseData.length);
-    var rmsNorm=Math.min(1,rms*5); /* ×5 gain */
+    var rmsNorm=Math.min(1,rms*5);
     var thrNorm=threshold/100;
 
-    /* breath meter */
+    /* ── smooth volume ── */
+    if(rmsNorm>smoothedVol)smoothedVol=smoothedVol*(1-VOL_ATTACK)+rmsNorm*VOL_ATTACK;
+    else smoothedVol=smoothedVol*VOL_RELEASE+rmsNorm*(1-VOL_RELEASE);
+    smoothedVol=Math.max(0,Math.min(1,smoothedVol));
+
+    /* breath bar uses raw rmsNorm for visual responsiveness */
     document.getElementById('breath-fill').style.width=Math.round(rmsNorm*100)+'%';
 
+    /* pitch detection */
+    var detectedFreq=-1;
+    if(rmsNorm>thrNorm&&analyser.getFloatTimeDomainData){
+      analyser.getFloatTimeDomainData(pitchBuffer);
+      detectedFreq=detectPitch(pitchBuffer,AC.sampleRate);
+    }
+
+    /* map mic pitch → OP2 ratio (same logic as v8) */
+    if(detectedFreq>80&&detectedFreq<4000&&gateOpen&&activeNote&&!activeNote.stopScheduled){
+      var baseFreq=currentFreq();
+      var liveRatio=Math.max(0.1,Math.min(16.0,detectedFreq/baseFreq));
+      /* exponential ramp to new OP2 freq — smooth glide */
+      try{
+        activeNote.s2.frequency.exponentialRampToValueAtTime(
+          baseFreq*liveRatio, AC.currentTime+0.03);
+      }catch(e){}
+      smoothedRatio=liveRatio;
+      ops[1].r=Math.round(liveRatio*10);
+    }
+
+    /* gate logic */
     if(rmsNorm>thrNorm){
       if(!gateOpen){
+        /* onset */
         gateOpen=true;
-        var str=Math.min(1,0.3+(rmsNorm-thrNorm)/(1-thrNorm+0.001)*0.7);
-        triggerGate(str);
-      }
-      /* gate held: waveform stays active */
-      if(activeNote&&!activeNote.stopScheduled){
-        /* keep waveform animated */
-        waveImpact=Math.max(waveImpact,0.3+rmsNorm*0.5);
-        drawWaveform();
+        if(activeNote&&!activeNote.stopScheduled)releaseActive();
+        var str=Math.min(0.9,0.2+(rmsNorm-thrNorm)/(1-thrNorm+0.001)*0.7);
+        _fmOn(currentFreq(),str);
+        waveImpact=str;animateWave();
+      } else {
+        /* gate held → update volume from smoothed RMS, keep waveImpact alive */
+        var volAbove=Math.max(0.15,(smoothedVol-thrNorm)/(1-thrNorm+0.001));
+        setNoteVol(volAbove*0.85);
+        waveImpact=Math.max(waveImpact,smoothedVol*0.6);
       }
     } else {
       if(gateOpen){
         gateOpen=false;
         releaseActive();
-        /* let waveform decay */
+        /* let wave decay naturally via animateWave loop */
       }
     }
 
-    prevRms=rmsNorm;
     micPollId=setTimeout(poll,POLL);
   }
   poll();
 }
 
-/* ── STATUS ── */
 function setSt(t){document.getElementById('hdr-status').textContent=t;}
 
 /* ── TAP TO START ── */
@@ -715,16 +798,16 @@ function setSt(t){document.getElementById('hdr-status').textContent=t;}
     initAC().then(function(){
       ov.style.display='none';
       startMic();
-      setTimeout(function(){drawWaveform();initVslDisplays();},50);
+      setTimeout(function(){drawWaveform();},60);
     });
   }
   ov.addEventListener('touchend',unlock,{passive:false});
   ov.addEventListener('mouseup',unlock);
 })();
 
-/* ── INIT ── */
-setTimeout(function(){drawWaveform();initVslDisplays();},80);
-window.addEventListener('resize',function(){drawWaveform();});
+/* ── RESIZE ── */
+setTimeout(function(){drawWaveform();},80);
+window.addEventListener('resize',function(){drawWaveform();if(document.getElementById('pg-env').style.display!=='none')drawEnvCanvas();});
 </script>
 </body>
 </html>
